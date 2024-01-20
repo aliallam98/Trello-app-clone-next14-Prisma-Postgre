@@ -24,7 +24,7 @@ const textFont = Poppins({
 
 export default function MarketingPage() {
   return (
-    <section className="bg-slate-100">
+    <section className="bg-slate-100 h-full">
       <div className="container max-w-[1140px] flex flex-col justify-center items-center">
         <div className="flex flex-col justify-center items-center">
           <div className="flex items-center text-amber-600 bg-amber-100 py-2 px-4 rounded-3xl gap-x-2">
