@@ -4,8 +4,8 @@ import { Button } from "../ui/button";
 
 const Footer = () => {
   return (
-    <footer className="p-6 bg-purple-600/10">
-      <div className="container max-w-[1140px] flex justify-between items-center p-4 border-t">
+    <footer className="p-6  border-t">
+      <div className="container max-w-[1140px] flex justify-between items-center ">
         <Logo />
         <div className="flex items-center  text-muted-foreground">
           <Button size="sm" variant="ghost">
