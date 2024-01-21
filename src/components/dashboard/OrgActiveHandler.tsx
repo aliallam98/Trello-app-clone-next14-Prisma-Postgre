@@ -6,7 +6,7 @@ import { useEffect } from 'react'
 const OrgActiveHandler = () => {
     const params = useParams()
     const { setActive } = useOrganizationList();
-
+    
 
     useEffect(()=>{
         if(!setActive) return

@@ -3,19 +3,22 @@ import Logo from "../../Logo";
 import { Plus } from "lucide-react";
 import { Button } from "../../ui/button";
 import { OrganizationSwitcher, UserButton } from "@clerk/nextjs";
+import MobSidebar from "@/components/dashboard/sidebar/MobSidebar";
 
 const DashboardNavbar = () => {
   return (
     <header className="p-2 border-b shadow-md">
-      <nav className="container max-w-[1140px] flex justify-between items-center ">
+      <nav className="md:container max-w-[1140px] flex justify-between items-center ">
         <div className="flex items-center  gap-x-4">
           <div className="hidden md:flex">
             <Logo />
           </div>
-          <div>
+          <div className="flex items-center">
+          <MobSidebar />
             <Button className="block md:hidden" size={"sm"}>
               <Plus size={16} />
             </Button>
+
             <Button className="hidden md:block">Create</Button>
           </div>
         </div>
