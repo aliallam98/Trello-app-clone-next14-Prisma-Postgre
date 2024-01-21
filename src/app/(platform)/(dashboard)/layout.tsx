@@ -2,10 +2,10 @@ import DashboardNavbar from "@/components/navbars/dashboardnavbar/DashboardNavba
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div>
+    <>
       <DashboardNavbar />
-      {children}
-    </div>
+      <main className="h-full">{children}</main>
+    </>
   );
 };
 

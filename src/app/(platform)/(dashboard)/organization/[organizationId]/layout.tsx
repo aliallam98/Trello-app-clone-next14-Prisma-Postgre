@@ -7,13 +7,15 @@ const OrganizationIdPage = ({
   children: React.ReactNode;
 }) => {
   return (
-    <main className=" flex max-w-6xl 2xl:max-w-screen-xl ">
+    <>
       <OrgActiveHandler />
-      <div className="w-64 shrink-0 hidden md:block border-r">
+      <div className="flex h-full">
         <Sidebar />
+        <div className="grow p-4">
+        {children}
+        </div>
       </div>
-      {children}
-    </main>
+    </>
   );
 };
 

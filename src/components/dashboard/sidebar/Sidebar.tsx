@@ -71,7 +71,7 @@ const Sidebar = ({ storageKey = "t-sidebar-state" }: IProps) => {
   }
 
   return (
-    <aside>
+    <aside className="w-64 shrink-0 hidden md:block shadow-lg p-2">
       <div className="flex items-center justify-between">
         <span>Workspace</span>
         <Button
