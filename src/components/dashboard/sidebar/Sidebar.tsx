@@ -16,8 +16,6 @@ interface IProps {
 const Sidebar = ({ storageKey = "t-sidebar-state" }: IProps) => {
   const { isLoaded: isOrganizationLoaded, organization: activeOrganization } =
     useOrganization();
-    console.log(activeOrganization?.id);
-    
 
   const { isLoaded: isOrganizationListLoaded, userMemberships } =
     useOrganizationList({

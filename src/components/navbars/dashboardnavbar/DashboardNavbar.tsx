@@ -4,6 +4,7 @@ import { Plus } from "lucide-react";
 import { Button } from "../../ui/button";
 import { OrganizationSwitcher, UserButton } from "@clerk/nextjs";
 import MobSidebar from "@/components/dashboard/sidebar/MobSidebar";
+import CreateBoardForm from "@/components/dashboard/organization/CreateBoardForm";
 
 const DashboardNavbar = () => {
   return (
@@ -14,12 +15,15 @@ const DashboardNavbar = () => {
             <Logo />
           </div>
           <div className="flex items-center">
-          <MobSidebar />
-            <Button className="block md:hidden" size={"sm"}>
-              <Plus size={16} />
-            </Button>
-
-            <Button className="hidden md:block">Create</Button>
+            <MobSidebar />
+            <CreateBoardForm>
+              <Button className="block md:hidden" size={"sm"}>
+                <Plus size={16} />
+              </Button>
+            </CreateBoardForm>
+            <CreateBoardForm>
+              <Button className="hidden md:block">Create</Button>
+            </CreateBoardForm>
           </div>
         </div>
 

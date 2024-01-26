@@ -33,8 +33,7 @@ const SidebarItem = ({
 
   const router = useRouter();
   const pathname = usePathname();
-  console.log(organization.id);
-  
+
 
   const routes = [
     {
