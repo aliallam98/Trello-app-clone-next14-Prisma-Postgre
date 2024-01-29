@@ -37,6 +37,8 @@ import { Check } from "lucide-react";
 import { createBoard } from "@/actions/board.actions";
 import { auth, useAuth } from "@clerk/nextjs";
 import { toast } from "sonner";
+import { Spinner } from "@/components/Spinner";
+import { redirect } from "next/navigation";
 
 const formSchema = z.object({
   title: z.string().min(2, { message: "Cannot Be Empty" }).max(50),
@@ -44,13 +46,13 @@ const formSchema = z.object({
 });
 
 const CreateBoardForm = ({ children }: { children: React.ReactNode }) => {
-  const {orgId} = useAuth()
-  
+  const { orgId } = useAuth();
 
-  const [images, setImages] = useState<Array<Record<string, any>>>(defaultImages);
+  const [images, setImages] =
+    useState<Array<Record<string, any>>>(defaultImages);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [selectedImageId, setSelectedImageId] = useState(null);
-  const [isPending,startTransition] = useTransition()
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     const fetchRandomImages = async () => {
@@ -59,7 +61,6 @@ const CreateBoardForm = ({ children }: { children: React.ReactNode }) => {
           collectionIds: ["317099"],
           count: 9,
         });
-
         if (results && results.response) {
           const randomImages = results.response as Array<Record<string, any>>;
           setImages(randomImages);
@@ -88,28 +89,27 @@ const CreateBoardForm = ({ children }: { children: React.ReactNode }) => {
     if (!values.image) return console.error("Select An Image");
     const [imageId, imageThumbUrl, imageFullUrl, imageLinkHTML, imageUserName] =
       values.image.split("|");
-      try {
-        startTransition(async ()=>{
-          await createBoard({
-         title: values.title,
-         orgId,
-         imageId,
-         imageThumbUrl,
-         imageFullUrl,
-         imageLinkHTML,
-         imageUserName,
-       })
-       toast.success("Board Created .")
-     })
-     
-      } catch (error) {
-        toast.success("Something Went Wrong .")
-      }
-    
+    try {
+      startTransition(async () => {
+        const {results : board } = await createBoard({
+          title: values.title,
+          orgId,
+          imageId,
+          imageThumbUrl,
+          imageFullUrl,
+          imageLinkHTML,
+          imageUserName,
+        });
+        toast.success("Board Created .");
+        redirect(`/board/${board?.id}`)
+      });
+    } catch (error) {
+      toast.error("Something Went Wrong .");
+    }
   }
 
   // To Do Close model once its done
-  
+
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -121,6 +121,11 @@ const CreateBoardForm = ({ children }: { children: React.ReactNode }) => {
               onSubmit={form.handleSubmit(onSubmit)}
               className="space-y-8 max-w-[400px] mx-auto"
             >
+              {isLoading && (
+                <div className="flex items-center justify-center mt-8">
+                  <Spinner />
+                </div>
+              )}
               <div className="grid grid-cols-3 gap-2 mb-2">
                 {images.map((image) => (
                   <div
@@ -180,18 +185,18 @@ const CreateBoardForm = ({ children }: { children: React.ReactNode }) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input placeholder="Enter Board Name" {...field} 
-                      disabled={isPending}
+                      <Input
+                        placeholder="Enter Board Name"
+                        {...field}
+                        disabled={isPending}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <Button 
-              disabled={isPending}
-              type="submit" className="w-full">
-                {  isPending ? "Creating" : "Submit"}
+              <Button disabled={isPending} type="submit" className="w-full">
+                {isPending ? "Creating" : "Submit"}
               </Button>
             </form>
           </Form>
