@@ -1,4 +1,5 @@
 import { getBoardById } from "@/actions/board.actions";
+import { getAllLists } from "@/actions/list.actions";
 import BoardTitle from "@/components/dashboard/board/BoardTitle";
 import CreateListForm from "@/components/dashboard/board/CreateListForm";
 import ListContainer from "@/components/dashboard/board/ListContainer";
@@ -22,6 +23,9 @@ const page = async ({ params: { boardId } }: IProps) => {
     return notFound();
   }
 
+  const {results:lists} = await getAllLists({boardId,orgId})
+  console.log(lists);
+
   return (
     <section
       style={{ backgroundImage: `url(${board?.imageFullUrl})` }}
@@ -31,6 +35,7 @@ const page = async ({ params: { boardId } }: IProps) => {
       <BoardTitle data={board} orgId={orgId} boardId={boardId} />
       <div className="relative z-40">
       <ListContainer
+      data = {lists}
       boardId={boardId}
       orgId={orgId}
       />
