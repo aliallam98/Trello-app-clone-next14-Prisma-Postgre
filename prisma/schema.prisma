@@ -29,7 +29,7 @@ updateAt  DateTime @updatedAt
 model List {
   id String @id @default(uuid())
   title String
-  odder Int
+  order Int
 
   boardId String
   board Board @relation(fields: [boardId],references: [id],onDelete: Cascade)
