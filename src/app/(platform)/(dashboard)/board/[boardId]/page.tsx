@@ -24,7 +24,6 @@ const page = async ({ params: { boardId } }: IProps) => {
   }
 
   const {results:lists} = await getAllLists({boardId,orgId})
-  console.log(lists);
 
   return (
     <section

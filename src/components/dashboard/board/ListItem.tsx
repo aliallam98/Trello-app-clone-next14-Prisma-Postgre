@@ -10,7 +10,7 @@ interface IProps {
 }
 const ListItem = ({data}:IProps) => {
   return (
-    <div className='w-full cursor-pointer'>
+    <div className='w-full'>
         <ListTitle
         data={data}
         />

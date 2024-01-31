@@ -73,6 +73,7 @@ const CreateListForm = ({boardId,orgId}: IProps) => {
       startTransition(async()=>{
         const newList = await createList({boardId:values.boardId,orgId,title:values.title})
         toast.success("List created successfully")
+        disableEditing()
       })
     } catch (error:any) {
       toast.error(error.message)
