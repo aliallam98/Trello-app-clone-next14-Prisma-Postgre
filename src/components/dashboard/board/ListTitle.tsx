@@ -110,7 +110,7 @@ const ListTitle = ({ data }: IProps) => {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-8 text-black"
+          className="space-y-8 text-black pt-2 px-2 "
           ref={formRef}
         >
           <FormField
@@ -137,7 +137,7 @@ const ListTitle = ({ data }: IProps) => {
     );
 
   return (
-    <div className="w-full flex items-center justify-between h-6  cursor-pointer ">
+    <div className="pt-2 px-2 text-sm font-semibold flex justify-between items-start- gap-x-2">
       <p onClick={enableEditing} className="grow text-sm font-medium">
         {data.title}
       </p>

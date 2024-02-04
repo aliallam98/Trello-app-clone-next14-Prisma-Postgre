@@ -214,7 +214,7 @@ try {
 
 
   revalidatePath(`/board/${boardId}`);
-  return { success: false, message: "Failed To Delete List",results:list};
+  return { success: true, message: "List Copied",results:list};
 } catch (error) {
   console.log(error);
   return { success: false, message: "Failed To Copy List"};
