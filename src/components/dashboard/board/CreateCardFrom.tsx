@@ -80,6 +80,7 @@ const CreateCardFrom = ({ data }: IProps) => {
           title: values.title,
           description:values.description,
           orgId,
+          boardId : values.boardId
         });
         toast.success(card.message);
       });
