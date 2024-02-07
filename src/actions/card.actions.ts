@@ -10,7 +10,7 @@ type CreateCardParams = {
   orgId: string;
   title: string;
   description?: string;
-  boardId:string
+  boardId: string;
 };
 
 interface ICard {
@@ -23,7 +23,7 @@ export const createCard = async ({
   orgId,
   title,
   description,
-  boardId
+  boardId,
 }: CreateCardParams): Promise<ICard> => {
   try {
     const isListExist = await db.list.findUnique({
@@ -54,7 +54,6 @@ export const createCard = async ({
         order: newOrder,
       },
     });
-
 
     revalidatePath(`/board/${boardId}`);
     return {
@@ -121,35 +120,122 @@ export const updateCard = async ({
   id,
   orgId,
   boardId,
-}:UpdateCardParams) => {
-try {
+}: UpdateCardParams) => {
+  try {
     const cardToUpdate = await db.card.update({
-        where: {
-          id,
-          list: {
-            board: {
-              orgId,
-            },
+      where: {
+        id,
+        list: {
+          board: {
+            orgId,
           },
         },
-        data: {
-          title,
-          description,
-        },
-      });
-      revalidatePath(`/board/${boardId}`); 
-      return {
-        success: true,
-        message: "Card updated successfully",
-        results: cardToUpdate,
-      };
-      
-} catch (error) {
+      },
+      data: {
+        title,
+        description,
+      },
+    });
+    revalidatePath(`/board/${boardId}`);
+    return {
+      success: true,
+      message: "Card updated successfully",
+      results: cardToUpdate,
+    };
+  } catch (error) {
     console.log(error);
     return {
-        success: false,
-        message: "Failed to update card",
-      };
-    
-}
+      success: false,
+      message: "Failed to update card",
+    };
+  }
 };
+
+
+
+type CopyCardParams = {
+  id:string
+  orgId:string
+  boardId:string
+}
+export const copyCard = async ({id,orgId,boardId}:CopyCardParams) => {
+  try {
+    const cardToCopy = await db.card.findUnique({
+      where: {
+        id,
+        list: {
+          board: {
+            orgId,
+          },
+        },
+      },
+    });
+
+    if (!cardToCopy) {
+      throw new Error("Card not found");
+    }
+
+    const lastCard = await db.card.findFirst({
+      where: {
+        listId: cardToCopy.listId,
+      },
+      orderBy: {
+        order: "desc",
+      },
+      select: {
+        order: true,
+      },
+    });
+
+    const newOrder = lastCard ? lastCard.order + 1 : 1;
+
+    const card = await db.card.create({
+      data: {
+        title: `${cardToCopy.title} - Copy`,
+        description: cardToCopy.description,
+        order: newOrder,
+        listId: cardToCopy.listId,
+      },
+    });
+
+    revalidatePath(`/board/${boardId}`);
+    return {
+      success: true,
+      message: "Card created successfully",
+      results: card,
+    };
+  } catch (error) {
+    return { success: false, message: "Failed to copy card" };
+  }
+};
+
+
+
+type DeleteCardParams = {
+  id:string
+  orgId:string
+  boardId:string
+}
+export const  deleteCard = async ({id,orgId,boardId}:DeleteCardParams)=>{
+  try {
+    const cardToDelete = await db.card.delete({
+      where:{
+        id,
+        list:{
+          board:{
+            orgId
+          }
+        }
+      }
+    })
+
+    revalidatePath(`/board/${boardId}`);
+    return {
+      success: true,
+      message: "Card Deleted successfully",
+      results: cardToDelete,
+    };
+  } catch (error) {
+    return { success: false, message: "Failed to delete card" };
+  }
+}
