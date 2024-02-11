@@ -1,13 +1,22 @@
 import db from "@/lib/db";
 import { auth, currentUser } from "@clerk/nextjs";
-import { ActivityLogs } from "@prisma/client";
+import { ACTIONS_TYPE, ENTITY_TYPE } from "@prisma/client";
+import { redirect } from "next/navigation";
 
+
+
+interface IProps {
+  entityId: string;
+  entityType: ENTITY_TYPE,
+  entityTitle: string;
+  actionType: ACTIONS_TYPE;
+};
 export const createActivityLogs = async ({
   actionType,
   entityId,
   entityTitle,
   entityType,
-}: ActivityLogs) => {
+}: IProps) => {
   const { orgId } = auth();
   const user = await currentUser();
   if (!orgId || !user) {
@@ -33,3 +42,22 @@ export const createActivityLogs = async ({
 
   }
 };
+
+
+export const getAllOrgActivities = async()=>{
+  const {orgId} = auth()
+  if(!orgId){
+    return redirect("select-org")
+  }
+
+  const activities = await db.activityLogs.findMany({
+    where:{
+      orgId
+    },
+    orderBy:{
+      createdAt:"desc"
+    }
+  })
+
+  return activities
+}

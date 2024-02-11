@@ -1,10 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import useMobSidebar from "@/hooks/useMobNavbar";
 import { Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -44,7 +41,7 @@ const MobSidebar = () => {
       </Button>
       <Sheet open={isOpen} onOpenChange={onClose}>
         <SheetContent side="left" className="p-2 pt-16">
-            <Sidebar storageKey="t-sidebar-mobile-state"/>
+          <Sidebar storageKey="t-sidebar-mobile-state" />
         </SheetContent>
       </Sheet>
     </>

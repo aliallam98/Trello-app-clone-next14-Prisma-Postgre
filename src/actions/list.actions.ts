@@ -3,6 +3,8 @@
 import db from "@/lib/db";
 import { ListWithCards } from "@/typings";
 import { revalidatePath } from "next/cache";
+import { createActivityLogs } from "./activity.actions";
+import { ACTIONS_TYPE, ENTITY_TYPE } from "@prisma/client";
 
 type CreateListParams = {
   title: string;
@@ -47,7 +49,12 @@ export const createList = async ({
       },
     });
 
-    console.log(newList);
+    await createActivityLogs({
+      entityId:newList.id,
+      entityTitle:newList.title,
+      actionType:ACTIONS_TYPE.CREATE,
+      entityType:ENTITY_TYPE.LIST
+    })
 
     revalidatePath(`/board/${orgId}`);
   } catch (error) {
@@ -123,6 +130,14 @@ try {
     }
   })
 
+  
+  await createActivityLogs({
+    entityId:listToUpdate.id,
+    entityTitle:listToUpdate.title,
+    actionType:ACTIONS_TYPE.UPDATE,
+    entityType:ENTITY_TYPE.LIST
+  })
+
   revalidatePath(`/board/${boardId}`)
   return { success: true, message: "List Updated", results: listToUpdate };
 } catch (error) {
@@ -147,6 +162,14 @@ try {
       orgId
     }
    }
+  })
+
+  
+  await createActivityLogs({
+    entityId:listToDelete.id,
+    entityTitle:listToDelete.title,
+    actionType:ACTIONS_TYPE.DELETE,
+    entityType:ENTITY_TYPE.LIST
   })
   revalidatePath(`/board/${boardId}`)
   return { success: true, message: "List Deleted",};
@@ -212,6 +235,13 @@ try {
     }
   })
 
+
+  await createActivityLogs({
+    entityId:list.id,
+    entityTitle:list.title,
+    actionType:ACTIONS_TYPE.CREATE,
+    entityType:ENTITY_TYPE.LIST
+  })
 
   revalidatePath(`/board/${boardId}`);
   return { success: true, message: "List Copied",results:list};

@@ -2,8 +2,9 @@
 
 import db from "@/lib/db";
 import { CardWithList } from "@/typings";
-import { Card } from "@prisma/client";
+import { ACTIONS_TYPE, Card, ENTITY_TYPE } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { createActivityLogs } from "./activity.actions";
 
 type CreateCardParams = {
   listId: string;
@@ -54,6 +55,13 @@ export const createCard = async ({
         order: newOrder,
       },
     });
+
+    await createActivityLogs({
+      entityId:card.id,
+      entityTitle:card.title,
+      actionType:ACTIONS_TYPE.CREATE,
+      entityType:ENTITY_TYPE.CARD
+    })
 
     revalidatePath(`/board/${boardId}`);
     return {
@@ -136,6 +144,13 @@ export const updateCard = async ({
         description,
       },
     });
+
+    await createActivityLogs({
+      entityId:cardToUpdate.id,
+      entityTitle:cardToUpdate.title,
+      actionType:ACTIONS_TYPE.UPDATE,
+      entityType:ENTITY_TYPE.CARD
+    })
     revalidatePath(`/board/${boardId}`);
     return {
       success: true,
@@ -151,14 +166,12 @@ export const updateCard = async ({
   }
 };
 
-
-
 type CopyCardParams = {
-  id:string
-  orgId:string
-  boardId:string
-}
-export const copyCard = async ({id,orgId,boardId}:CopyCardParams) => {
+  id: string;
+  orgId: string;
+  boardId: string;
+};
+export const copyCard = async ({ id, orgId, boardId }: CopyCardParams) => {
   try {
     const cardToCopy = await db.card.findUnique({
       where: {
@@ -198,6 +211,14 @@ export const copyCard = async ({id,orgId,boardId}:CopyCardParams) => {
       },
     });
 
+
+    await createActivityLogs({
+      entityId:card.id,
+      entityTitle:card.title,
+      actionType:ACTIONS_TYPE.CREATE,
+      entityType:ENTITY_TYPE.CARD
+    })
+
     revalidatePath(`/board/${boardId}`);
     return {
       success: true,
@@ -209,24 +230,29 @@ export const copyCard = async ({id,orgId,boardId}:CopyCardParams) => {
   }
 };
 
-
-
 type DeleteCardParams = {
-  id:string
-  orgId:string
-  boardId:string
-}
-export const  deleteCard = async ({id,orgId,boardId}:DeleteCardParams)=>{
+  id: string;
+  orgId: string;
+  boardId: string;
+};
+export const deleteCard = async ({ id, orgId, boardId }: DeleteCardParams) => {
   try {
     const cardToDelete = await db.card.delete({
-      where:{
+      where: {
         id,
-        list:{
-          board:{
-            orgId
-          }
-        }
-      }
+        list: {
+          board: {
+            orgId,
+          },
+        },
+      },
+    });
+
+    await createActivityLogs({
+      entityId:cardToDelete.id,
+      entityTitle:cardToDelete.title,
+      actionType:ACTIONS_TYPE.DELETE,
+      entityType:ENTITY_TYPE.CARD
     })
 
     revalidatePath(`/board/${boardId}`);
@@ -238,4 +264,4 @@ export const  deleteCard = async ({id,orgId,boardId}:DeleteCardParams)=>{
   } catch (error) {
     return { success: false, message: "Failed to delete card" };
   }
-}
+};

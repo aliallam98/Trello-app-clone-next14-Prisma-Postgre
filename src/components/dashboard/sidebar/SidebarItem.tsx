@@ -30,10 +30,8 @@ const SidebarItem = ({
   onExpand,
   organization,
 }: IProps) => {
-
   const router = useRouter();
   const pathname = usePathname();
-
 
   const routes = [
     {
@@ -107,10 +105,8 @@ export default SidebarItem;
 SidebarItem.Skeleton = function SkeletonSidebarItem() {
   return (
     <div className="flex items-center gap-x-2">
-      <div className="w-10 h-10 relative shrink-0">
-        <Skeleton className="h-full w-full absolute" />
-      </div>
-      <Skeleton className="h-10 w-full" />
+      <Skeleton className="w-10 h-10  shrink-0 bg-black/10" />
+      <Skeleton className="h-10 w-full bg-black/10" />
     </div>
   );
 };

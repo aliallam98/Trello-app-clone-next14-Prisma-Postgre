@@ -1,9 +1,10 @@
 "use server";
 
 import db from "@/lib/db";
-import { Board } from "@prisma/client";
+import { ACTIONS_TYPE, Board, ENTITY_TYPE } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { createActivityLogs } from "./activity.actions";
 
 
 
@@ -17,6 +18,14 @@ export const createBoard = async (boardData: any):Promise<IBoard> => {
     const newBoard = await db.board.create({
       data: boardData,
     });
+
+    await createActivityLogs({
+      entityId:newBoard.id,
+      entityTitle:newBoard.title,
+      actionType:ACTIONS_TYPE.CREATE,
+      entityType:ENTITY_TYPE.BOARD
+    })
+
     return { success: true, message: "Created", results: newBoard };
   } catch (error) {
     return { success: false, message: "Failed to create board", results: undefined }
@@ -78,7 +87,14 @@ export const updateBoardById =  async ({boardId,orgId,title}:updateBoardByIdPara
     })
     if(!updateBoardById) throw new Error("Cannot Do This Actions 'Update Board' ")
 
-    revalidatePath(`/board/${boardToUpdate.id}`)    
+    revalidatePath(`/board/${boardToUpdate.id}`)   
+    
+    await createActivityLogs({
+      entityId:boardToUpdate.id,
+      entityTitle:boardToUpdate.title,
+      actionType:ACTIONS_TYPE.UPDATE,
+      entityType:ENTITY_TYPE.BOARD
+    })
     return { success: true, message: "Updated", results: boardToUpdate }
   } catch (error) {
     console.log(error);
@@ -94,6 +110,12 @@ export const deleteBoardById =  async ({boardId,orgId}:deleteBoardByIdParams)=>{
   try {
     const boardToDelete = await db.board.delete({
       where:{id:boardId,orgId},
+    })
+    await createActivityLogs({
+      entityId:boardToDelete.id,
+      entityTitle:boardToDelete.title,
+      actionType:ACTIONS_TYPE.DELETE,
+      entityType:ENTITY_TYPE.BOARD
     })
     revalidatePath(`/organization/${orgId}`);
     return { success: true, message: "Deleted" }

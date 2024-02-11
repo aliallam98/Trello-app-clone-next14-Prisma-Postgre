@@ -55,11 +55,12 @@ const Sidebar = ({ storageKey = "t-sidebar-state" }: IProps) => {
   ) {
     return (
       <>
-        <div className="flex items-center justify-between mb-2">
-          <Skeleton className="h-10 w-[50%]" />
-          <Skeleton className="h-10 w-10" />
+        <div className="flex items-center justify-between mb-2 p-2">
+          <Skeleton className="h-10 w-[50%] bg-black/10" />
+          <Skeleton className="h-10 w-10 bg-black/10" />
         </div>
-        <div className="space-y-2">
+        <div className="space-y-2 p-2">
+          <SidebarItem.Skeleton />
           <SidebarItem.Skeleton />
           <SidebarItem.Skeleton />
           <SidebarItem.Skeleton />
@@ -69,7 +70,7 @@ const Sidebar = ({ storageKey = "t-sidebar-state" }: IProps) => {
   }
 
   return (
-    <aside className="w-64 shrink-0 hidden md:block shadow-lg p-2">
+    <aside className="shadow-lg p-2 h-full">
       <div className="flex items-center justify-between">
         <span>Workspace</span>
         <Button

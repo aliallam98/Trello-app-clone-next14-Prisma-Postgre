@@ -193,10 +193,10 @@ Description.Skeleton = function TitleSkeleton() {
     <div className="pt-2 px-2 text-sm  flex flex-col  items-start gap-2 w-full   ">
       <div className=" flex items-center gap-x-2">
         <Skeleton className="h-4 w-4 mt-1 bg-neutral-200" />
-        <Skeleton className="h-6 w-10 mt-1 bg-neutral-200" />
+        <Skeleton className="h-6 w-20 mt-1 bg-neutral-200" />
       </div>
       <div className="min-h-[80px] p-2 grow   rounded-md ">
-        <Skeleton className="min-h-[80px] w-40 bg-neutral-200" />
+        <Skeleton className="min-h-[80px] w-[400px] bg-neutral-200" />
       </div>
     </div>
   );

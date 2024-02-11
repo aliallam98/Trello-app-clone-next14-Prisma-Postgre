@@ -8,8 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 const Info = () => {
   const { organization, isLoaded } = useOrganization();
 
-  if (!isLoaded)
-    return <Info.Skeleton/>
+  if (!isLoaded) return <Info.Skeleton />;
 
   return (
     <div className="p-2">
@@ -37,10 +36,10 @@ export default Info;
 Info.Skeleton = function InfoSkeleton() {
   return (
     <div className="flex items-center gap-x-2">
-      <Skeleton className="h-[60px] w-[60px] " />
+      <Skeleton className="h-[60px] w-[60px] bg-black/10" />
       <div className="space-y-2">
-        <Skeleton className="h-5 w-52 " />
-        <Skeleton className="h-5 w-20 " />
+        <Skeleton className="h-5 w-52  bg-black/10" />
+        <Skeleton className="h-5 w-20 bg-black/10 " />
       </div>
     </div>
   );

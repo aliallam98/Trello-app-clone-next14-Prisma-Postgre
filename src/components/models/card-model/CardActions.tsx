@@ -1,6 +1,7 @@
 "use client";
 import { copyCard, deleteCard } from "@/actions/card.actions";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import useCardModel from "@/hooks/useCardModel";
 import { CardWithList } from "@/typings";
 import { useAuth } from "@clerk/nextjs";
@@ -72,3 +73,15 @@ const CardActions = ({ data }: { data: CardWithList }) => {
 };
 
 export default CardActions;
+
+CardActions.Skeleton = function cardActionsSkeleton() {
+  return (
+    <div className="space-y-3">
+      <Skeleton className="h-6 w-20 bg-neutral-200" />
+      <div className="flex items-center gap-2">
+        <Skeleton className="h-6 w-20 bg-neutral-200" />
+        <Skeleton className="h-6 w-20 bg-neutral-200" />
+      </div>
+    </div>
+  );
+};
