@@ -5,7 +5,10 @@ import Image from "next/image";
 import { CreditCard } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const Info = () => {
+interface IProps {
+  isPro: boolean;
+}
+const Info = ({ isPro }: IProps) => {
   const { organization, isLoaded } = useOrganization();
 
   if (!isLoaded) return <Info.Skeleton />;
@@ -23,7 +26,7 @@ const Info = () => {
           <p className="font-semibold">{organization?.name}</p>
           <div className="flex items-center gap-x-2">
             <CreditCard size={12} />
-            <span className="text-sm">Free</span>
+            <span className="text-sm">{isPro ? "Pro" : "Free"}</span>
           </div>
         </div>
       </div>

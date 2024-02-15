@@ -39,6 +39,7 @@ import { auth, useAuth } from "@clerk/nextjs";
 import { toast } from "sonner";
 import { Spinner } from "@/components/Spinner";
 import { redirect } from "next/navigation";
+import useProCardModel from "@/hooks/useProCardModel";
 
 const formSchema = z.object({
   title: z.string().min(2, { message: "Cannot Be Empty" }).max(50),
@@ -47,6 +48,7 @@ const formSchema = z.object({
 
 const CreateBoardForm = ({ children }: { children: React.ReactNode }) => {
   const { orgId } = useAuth();
+  const proModel = useProCardModel();
 
   const [images, setImages] =
     useState<Array<Record<string, any>>>(defaultImages);
@@ -91,7 +93,7 @@ const CreateBoardForm = ({ children }: { children: React.ReactNode }) => {
       values.image.split("|");
     try {
       startTransition(async () => {
-        const {results : board } = await createBoard({
+        const { success, message } = await createBoard({
           title: values.title,
           orgId,
           imageId,
@@ -100,8 +102,12 @@ const CreateBoardForm = ({ children }: { children: React.ReactNode }) => {
           imageLinkHTML,
           imageUserName,
         });
-        toast.success("Board Created .");
-        redirect(`/board/${board?.id}`)
+        if (success) {
+          toast.success("Board Created .");
+        } else {
+          toast.error(message);
+          proModel.onOpen();
+        }
       });
     } catch (error) {
       toast.error("Something Went Wrong .");
@@ -113,9 +119,11 @@ const CreateBoardForm = ({ children }: { children: React.ReactNode }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="mb-2">Create New Board</DialogTitle>
+          <DialogTitle className="mb-4 text-center">
+            Create New Board
+          </DialogTitle>
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}

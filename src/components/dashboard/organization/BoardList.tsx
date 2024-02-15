@@ -6,16 +6,21 @@ import { auth } from "@clerk/nextjs";
 import { getAllBoardsById } from "@/actions/board.actions";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { getAvailableCount } from "@/actions/org.limits.actions";
+import { MAX_FREE_BOARDS } from "@/constants/boardCount";
+import { checkSubscription } from "@/actions/subscription";
 
 const BoardList = async () => {
-  const {orgId} = auth()
-  
-  if(!orgId){
-    redirect("/select-org")
+  const { orgId } = auth();
+
+  if (!orgId) {
+    redirect("/select-org");
   }
-  
-  const {results:organizationBoards} = await getAllBoardsById(orgId)
-  
+
+  const { results: organizationBoards } = await getAllBoardsById(orgId);
+  const availableBoardsCounts = await getAvailableCount();
+  const isPro = await checkSubscription();
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
@@ -24,17 +29,15 @@ const BoardList = async () => {
         <span className="font-semibold text-lg">Your Boards</span>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        {organizationBoards.map((board)=>(
+        {organizationBoards.map((board) => (
           <Link
-          key = {board.id}
-          href={`/board/${board.id}`}
-          style={{backgroundImage:`url(${board.imageThumbUrl})`}}
-          className="relative group  bg-no-repeat bg-cover bg-center  h-full w-full overflow-hidden bg-muted p-2"
+            key={board.id}
+            href={`/board/${board.id}`}
+            style={{ backgroundImage: `url(${board.imageThumbUrl})` }}
+            className="relative group  bg-no-repeat bg-cover bg-center aspect-video  bg-sky-700   rounded-sm  h-full w-full overflow-hidden bg-muted p-2"
           >
-          <div
-          className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition"
-          />
-          <p className="relative text-white font-semibold">{board.title}</p>
+            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition" />
+            <p className="relative text-white font-semibold">{board.title}</p>
           </Link>
         ))}
         <CreateBoardForm>
@@ -44,7 +47,10 @@ const BoardList = async () => {
             role="button"
           >
             <p>Create New Board</p>
-            <p className="text-sm text-muted-foreground">5 Boards Remaining</p>
+            <p className="text-sm text-muted-foreground">
+              {isPro ? "UnLimited" : MAX_FREE_BOARDS - availableBoardsCounts}{" "}
+              Remaining
+            </p>
             <Hint
               sideOffset={40}
               side="right"

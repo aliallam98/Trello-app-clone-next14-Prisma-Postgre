@@ -1,6 +1,7 @@
 "use client";
 
 import CardModel from "@/components/models/card-model/CardModel";
+import ProModel from "@/components/models/pro-model/ProModel";
 import React, { useEffect, useState } from "react";
 
 const CardModelProvider = () => {
@@ -16,6 +17,7 @@ const CardModelProvider = () => {
   return (
     <>
       <CardModel />
+      <ProModel/>
     </>
   );
 };

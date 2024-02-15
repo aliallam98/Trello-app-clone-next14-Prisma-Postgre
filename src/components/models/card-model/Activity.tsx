@@ -8,7 +8,6 @@ interface IProps {
 }
 
 const Activity = ({ data }: IProps) => {
-  console.log(data);
 
   return (
     <div className="flex flex-col items-start gap-x-3 w-full">
