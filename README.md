@@ -1,5 +1,7 @@
 #Key Features:
 
+
+ ```
 Auth
 Organizations / Workspaces
 Board creation
@@ -17,6 +19,7 @@ Landing page
 MySQL DB
 Prisma ORM
 shadcnUI & TailwindCSS
+```
 
 ## Prerequisites
 Node version 18.x.x
