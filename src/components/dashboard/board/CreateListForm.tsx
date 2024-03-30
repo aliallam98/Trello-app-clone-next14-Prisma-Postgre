@@ -4,7 +4,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { ElementRef, KeyboardEvent, useRef, useState, useTransition } from "react";
+import {
+  ElementRef,
+  KeyboardEvent,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import {
   Form,
   FormControl,
@@ -30,12 +36,12 @@ const formSchema = z.object({
 });
 
 interface IProps {
-  boardId:string
-  orgId:string
+  boardId: string;
+  orgId: string;
 }
 
-const CreateListForm = ({boardId,orgId}: IProps) => {
-  const [isPending, startTransition] = useTransition()
+const CreateListForm = ({ boardId, orgId }: IProps) => {
+  const [isPending, startTransition] = useTransition();
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const formRef = useRef<ElementRef<"form">>(null);
@@ -70,13 +76,18 @@ const CreateListForm = ({boardId,orgId}: IProps) => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      startTransition(async()=>{
-        const newList = await createList({boardId:values.boardId,orgId,title:values.title})
-        toast.success("List created successfully")
-        disableEditing()
-      })
-    } catch (error:any) {
-      toast.error(error.message)
+      startTransition(async () => {
+        const newList = await createList({
+          boardId: values.boardId,
+          orgId,
+          title: values.title,
+        });
+        toast.success("List created successfully");
+        disableEditing();
+        form.reset();
+      });
+    } catch (error: any) {
+      toast.error(error.message);
     }
   }
 
@@ -97,7 +108,7 @@ const CreateListForm = ({boardId,orgId}: IProps) => {
                 <FormItem>
                   <FormControl>
                     <Input
-                    disabled={isPending}
+                      disabled={isPending}
                       placeholder="Enter List Title "
                       {...field}
                       ref={inputRef}
@@ -123,12 +134,15 @@ const CreateListForm = ({boardId,orgId}: IProps) => {
               )}
             />
             <div className="flex items-center gap-x-1">
+              <Button disabled={isPending} type="submit">
+                Add list
+              </Button>
               <Button
-              disabled={isPending}
-              type="submit">Add list</Button>
-              <Button
-              disabled={isPending}
-              onClick={disableEditing} size="sm" variant="ghost">
+                disabled={isPending}
+                onClick={disableEditing}
+                size="sm"
+                variant="ghost"
+              >
                 <X className="h-5 w-5" />
               </Button>
             </div>

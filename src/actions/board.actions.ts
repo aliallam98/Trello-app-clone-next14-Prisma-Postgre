@@ -42,7 +42,7 @@ export const createBoard = async (boardData: any): Promise<IBoard> => {
     if (!isPro) {
       await incrementAvailableCount();
     }
-
+    revalidatePath(`/organization/${boardData.orgId}`)
     return { success: true, message: "Created", results: newBoard };
   } catch (error: any) {
     return {

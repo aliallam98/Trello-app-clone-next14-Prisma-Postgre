@@ -50,11 +50,11 @@ export const createList = async ({
     });
 
     await createActivityLogs({
-      entityId:newList.id,
-      entityTitle:newList.title,
-      actionType:ACTIONS_TYPE.CREATE,
-      entityType:ENTITY_TYPE.LIST
-    })
+      entityId: newList.id,
+      entityTitle: newList.title,
+      actionType: ACTIONS_TYPE.CREATE,
+      entityType: ENTITY_TYPE.LIST,
+    });
 
     revalidatePath(`/board/${orgId}`);
   } catch (error) {
@@ -70,10 +70,12 @@ type GetAllListsParams = {
 interface ILists {
   success: boolean;
   message: string;
-  results?: ListWithCards [] 
-
+  results?: ListWithCards[];
 }
-export const getAllLists = async ({ boardId, orgId }: GetAllListsParams) : Promise<ILists> => {
+export const getAllLists = async ({
+  boardId,
+  orgId,
+}: GetAllListsParams): Promise<ILists> => {
   try {
     const isBoardExist = await db.board.findFirst({
       where: {
@@ -101,152 +103,184 @@ export const getAllLists = async ({ boardId, orgId }: GetAllListsParams) : Promi
       },
     });
     return { success: true, message: "Done", results: lists };
-  } catch (error:any) {
+  } catch (error: any) {
     console.log(error);
-    return { success: true, message: error.message , results: [] };
+    return { success: true, message: error.message, results: [] };
   }
 };
 
-
-
 type UpdateListParams = {
-  listId:string
-  boardId:string
-  orgId:string
-  title:string
-}
-export const updateList = async({listId,boardId,orgId,title}:UpdateListParams)=>{
-try {
-  const listToUpdate = await db.list.update({
-    where:{
-      id:listId,
-      boardId,
-      board:{
-        orgId
-      }
-    },
-    data:{
-      title
-    }
-  })
+  listId: string;
+  boardId: string;
+  orgId: string;
+  title: string;
+};
+export const updateList = async ({
+  listId,
+  boardId,
+  orgId,
+  title,
+}: UpdateListParams) => {
+  try {
+    const listToUpdate = await db.list.update({
+      where: {
+        id: listId,
+        boardId,
+        board: {
+          orgId,
+        },
+      },
+      data: {
+        title,
+      },
+    });
 
-  
-  await createActivityLogs({
-    entityId:listToUpdate.id,
-    entityTitle:listToUpdate.title,
-    actionType:ACTIONS_TYPE.UPDATE,
-    entityType:ENTITY_TYPE.LIST
-  })
+    await createActivityLogs({
+      entityId: listToUpdate.id,
+      entityTitle: listToUpdate.title,
+      actionType: ACTIONS_TYPE.UPDATE,
+      entityType: ENTITY_TYPE.LIST,
+    });
 
-  revalidatePath(`/board/${boardId}`)
-  return { success: true, message: "List Updated", results: listToUpdate };
-} catch (error) {
-  return { success: false, message: "Failed To Update", };
-}
-}
-
-
-
-type DeleteListParams = {
-  listId:string
-  boardId:string
-  orgId:string
-}
-export const deleteList = async({listId,boardId,orgId}:DeleteListParams)=>{
-try {
-  const listToDelete = await db.list.delete({
-   where:{
-    id:listId,
-    boardId,
-    board:{
-      orgId
-    }
-   }
-  })
-
-  
-  await createActivityLogs({
-    entityId:listToDelete.id,
-    entityTitle:listToDelete.title,
-    actionType:ACTIONS_TYPE.DELETE,
-    entityType:ENTITY_TYPE.LIST
-  })
-  revalidatePath(`/board/${boardId}`)
-  return { success: true, message: "List Deleted",};
-} catch (error:any) {
-  console.log(error);
-  return { success: false, message: "Failed To Delete List",};
-}
-}
-
-
-
-type CopyListParams = {
-  listId:string
-  boardId:string
-  orgId:string
-}
-export const copyList = async({listId,boardId,orgId}:CopyListParams)=>{
-try {
-  const ListToCopy = await db.list.findUnique({
-    where: {
-      id:listId,
-      boardId,
-      board:{
-        orgId
-      }
-    },
-    include:{
-      card:true
-    }
-  })
-  if(!ListToCopy) {
-    throw new Error("Cannot find List")
+    revalidatePath(`/board/${boardId}`);
+    return { success: true, message: "List Updated", results: listToUpdate };
+  } catch (error) {
+    return { success: false, message: "Failed To Update" };
   }
-  const lastList = await db.list.findFirst({
-    where: {
-      boardId
-    },
-    orderBy: {
-      order:"desc"
-    },
-    select:{order:true}
-  })
+};
+export const updateListOrder = async ({
+  boardId,
+  orgId,
+  items,
+}: any) => {
+  let lists;
 
-  const newOrder = lastList ? lastList.order + 1 : 1
+  try {
+    const transaction = items.map((list:any) =>
+      db.list.update({
+        where: {
+          id: list.id,
+          board: {
+            orgId,
+          },
+        },
+        data: {
+          order: list.order,
+        },
+      })
+    );
 
-  const list = await db.list.create({
-    data:{
-      boardId:ListToCopy.boardId,
-      title:`${ListToCopy.title} - Copy`,
-      order:newOrder,
-      card:{
-        createMany:{
-          data:ListToCopy.card.map((card)=>({
-            title:card.title,
-            description:card.description,
-            order:card.order
-          }))
-        }
-      }
-    },
-    include:{
-      card:true
-    }
-  })
-
-
-  await createActivityLogs({
-    entityId:list.id,
-    entityTitle:list.title,
-    actionType:ACTIONS_TYPE.CREATE,
-    entityType:ENTITY_TYPE.LIST
-  })
+    lists = await db.$transaction(transaction);
+  } catch (error) {
+    return {
+      error: "Failed to reorder.",
+    };
+  }
 
   revalidatePath(`/board/${boardId}`);
-  return { success: true, message: "List Copied",results:list};
-} catch (error) {
-  console.log(error);
-  return { success: false, message: "Failed To Copy List"};
-}
-}
+  return { data: lists };
+};
+
+type DeleteListParams = {
+  listId: string;
+  boardId: string;
+  orgId: string;
+};
+export const deleteList = async ({
+  listId,
+  boardId,
+  orgId,
+}: DeleteListParams) => {
+  try {
+    const listToDelete = await db.list.delete({
+      where: {
+        id: listId,
+        boardId,
+        board: {
+          orgId,
+        },
+      },
+    });
+
+    await createActivityLogs({
+      entityId: listToDelete.id,
+      entityTitle: listToDelete.title,
+      actionType: ACTIONS_TYPE.DELETE,
+      entityType: ENTITY_TYPE.LIST,
+    });
+    revalidatePath(`/board/${boardId}`);
+    return { success: true, message: "List Deleted" };
+  } catch (error: any) {
+    console.log(error);
+    return { success: false, message: "Failed To Delete List" };
+  }
+};
+
+type CopyListParams = {
+  listId: string;
+  boardId: string;
+  orgId: string;
+};
+export const copyList = async ({ listId, boardId, orgId }: CopyListParams) => {
+  try {
+    const ListToCopy = await db.list.findUnique({
+      where: {
+        id: listId,
+        boardId,
+        board: {
+          orgId,
+        },
+      },
+      include: {
+        card: true,
+      },
+    });
+    if (!ListToCopy) {
+      throw new Error("Cannot find List");
+    }
+    const lastList = await db.list.findFirst({
+      where: {
+        boardId,
+      },
+      orderBy: {
+        order: "desc",
+      },
+      select: { order: true },
+    });
+
+    const newOrder = lastList ? lastList.order + 1 : 1;
+
+    const list = await db.list.create({
+      data: {
+        boardId: ListToCopy.boardId,
+        title: `${ListToCopy.title} - Copy`,
+        order: newOrder,
+        card: {
+          createMany: {
+            data: ListToCopy.card.map((card) => ({
+              title: card.title,
+              description: card.description,
+              order: card.order,
+            })),
+          },
+        },
+      },
+      include: {
+        card: true,
+      },
+    });
+
+    await createActivityLogs({
+      entityId: list.id,
+      entityTitle: list.title,
+      actionType: ACTIONS_TYPE.CREATE,
+      entityType: ENTITY_TYPE.LIST,
+    });
+
+    revalidatePath(`/board/${boardId}`);
+    return { success: true, message: "List Copied", results: list };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: "Failed To Copy List" };
+  }
+};

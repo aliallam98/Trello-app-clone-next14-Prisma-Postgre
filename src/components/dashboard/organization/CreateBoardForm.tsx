@@ -23,11 +23,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from "@/components/ui/dialog";
 
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-import { useEffect, useState, useTransition } from "react";
+import { ElementRef, useEffect, useRef, useState, useTransition } from "react";
 import unsplash from "@/lib/unsplash";
 import { defaultImages } from "@/constants/images";
 import Image from "next/image";
@@ -38,17 +39,19 @@ import { createBoard } from "@/actions/board.actions";
 import { auth, useAuth } from "@clerk/nextjs";
 import { toast } from "sonner";
 import { Spinner } from "@/components/Spinner";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import useProCardModel from "@/hooks/useProCardModel";
 
 const formSchema = z.object({
   title: z.string().min(2, { message: "Cannot Be Empty" }).max(50),
-  image: z.string(),
+  image: z.string().min(2, { message: "Select Image" }),
 });
 
 const CreateBoardForm = ({ children }: { children: React.ReactNode }) => {
+  const CloseRef = useRef<ElementRef<"button">>(null);
   const { orgId } = useAuth();
   const proModel = useProCardModel();
+  const router = useRouter()
 
   const [images, setImages] =
     useState<Array<Record<string, any>>>(defaultImages);
@@ -88,12 +91,16 @@ const CreateBoardForm = ({ children }: { children: React.ReactNode }) => {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!values.image) return console.error("Select An Image");
+    if (!values.image) {
+      form.setError("image", {
+        message: "Select An Image",
+      });
+    }
     const [imageId, imageThumbUrl, imageFullUrl, imageLinkHTML, imageUserName] =
       values.image.split("|");
     try {
       startTransition(async () => {
-        const { success, message } = await createBoard({
+        const { success, message ,results} = await createBoard({
           title: values.title,
           orgId,
           imageId,
@@ -104,6 +111,9 @@ const CreateBoardForm = ({ children }: { children: React.ReactNode }) => {
         });
         if (success) {
           toast.success("Board Created .");
+          CloseRef?.current?.click();
+          form.reset();
+          router.push(`/board/${results?.id}`)
         } else {
           toast.error(message);
           proModel.onOpen();
@@ -119,6 +129,7 @@ const CreateBoardForm = ({ children }: { children: React.ReactNode }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogClose ref={CloseRef} />
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="mb-4 text-center">

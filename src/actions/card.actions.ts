@@ -57,11 +57,11 @@ export const createCard = async ({
     });
 
     await createActivityLogs({
-      entityId:card.id,
-      entityTitle:card.title,
-      actionType:ACTIONS_TYPE.CREATE,
-      entityType:ENTITY_TYPE.CARD
-    })
+      entityId: card.id,
+      entityTitle: card.title,
+      actionType: ACTIONS_TYPE.CREATE,
+      entityType: ENTITY_TYPE.CARD,
+    });
 
     revalidatePath(`/board/${boardId}`);
     return {
@@ -146,11 +146,11 @@ export const updateCard = async ({
     });
 
     await createActivityLogs({
-      entityId:cardToUpdate.id,
-      entityTitle:cardToUpdate.title,
-      actionType:ACTIONS_TYPE.UPDATE,
-      entityType:ENTITY_TYPE.CARD
-    })
+      entityId: cardToUpdate.id,
+      entityTitle: cardToUpdate.title,
+      actionType: ACTIONS_TYPE.UPDATE,
+      entityType: ENTITY_TYPE.CARD,
+    });
     revalidatePath(`/board/${boardId}`);
     return {
       success: true,
@@ -164,6 +164,36 @@ export const updateCard = async ({
       message: "Failed to update card",
     };
   }
+};
+export const UpdateCardOrder = async ( { items, boardId,orgId}: any) => {
+  let updatedCards;
+  try {
+    const transaction = items.map((card:any) =>
+      db.card.update({
+        where: {
+          id: card.id,
+          list: {
+            board: {
+              orgId,
+            },
+          },
+        },
+        data: {
+          order: card.order,
+          listId: card.listId,
+        },
+      })
+    );
+
+    updatedCards = await db.$transaction(transaction);
+  } catch (error) {
+    return {
+      error: "Failed to reorder.",
+    };
+  }
+
+  revalidatePath(`/board/${boardId}`);
+  return { data: updatedCards };
 };
 
 type CopyCardParams = {
@@ -211,13 +241,12 @@ export const copyCard = async ({ id, orgId, boardId }: CopyCardParams) => {
       },
     });
 
-
     await createActivityLogs({
-      entityId:card.id,
-      entityTitle:card.title,
-      actionType:ACTIONS_TYPE.CREATE,
-      entityType:ENTITY_TYPE.CARD
-    })
+      entityId: card.id,
+      entityTitle: card.title,
+      actionType: ACTIONS_TYPE.CREATE,
+      entityType: ENTITY_TYPE.CARD,
+    });
 
     revalidatePath(`/board/${boardId}`);
     return {
@@ -249,11 +278,11 @@ export const deleteCard = async ({ id, orgId, boardId }: DeleteCardParams) => {
     });
 
     await createActivityLogs({
-      entityId:cardToDelete.id,
-      entityTitle:cardToDelete.title,
-      actionType:ACTIONS_TYPE.DELETE,
-      entityType:ENTITY_TYPE.CARD
-    })
+      entityId: cardToDelete.id,
+      entityTitle: cardToDelete.title,
+      actionType: ACTIONS_TYPE.DELETE,
+      entityType: ENTITY_TYPE.CARD,
+    });
 
     revalidatePath(`/board/${boardId}`);
     return {

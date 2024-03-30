@@ -2,17 +2,18 @@
 
 import React, { useEffect, useState } from "react";
 import CreateListForm from "./CreateListForm";
-import ListWrapper from "./ListWrapper";
 import ListItem from "./ListItem";
-import { List } from "@prisma/client";
 import { ListWithCards } from "@/typings";
 
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
+import { toast } from "sonner";
+import { updateList, updateListOrder } from "@/actions/list.actions";
+import { UpdateCardOrder } from "@/actions/card.actions";
 
 interface IProps {
   boardId: string;
   orgId: string;
-  data: ListWithCards[] 
+  data: ListWithCards[];
 }
 
 function reorder<T>(list: T[], startIndex: number, endIndex: number) {
@@ -25,6 +26,7 @@ function reorder<T>(list: T[], startIndex: number, endIndex: number) {
 
 const ListContainer = ({ boardId, orgId, data }: IProps) => {
   const [orderedData, setOrderedData] = useState(data);
+
   useEffect(() => {
     setOrderedData(data);
   }, [data]);
@@ -46,14 +48,18 @@ const ListContainer = ({ boardId, orgId, data }: IProps) => {
 
     // User moves a list
     if (type === "list") {
-      const items = reorder(
-        orderedData,
-        source.index,
-        destination.index,
-      ).map((item, index) => ({ ...item, order: index }));
+      const items = reorder(orderedData, source.index, destination.index).map(
+        (item, index) => ({ ...item, order: index })
+      );
 
       setOrderedData(items);
-      // executeUpdateListOrder({ items, boardId });
+      updateListOrder({ items, boardId, orgId })
+        .then(() => {
+          toast.success("List Position Updated");
+        })
+        .catch(() => {
+          toast.error("Failed to update");
+        });
     }
 
     // User moves a card
@@ -61,8 +67,12 @@ const ListContainer = ({ boardId, orgId, data }: IProps) => {
       let newOrderedData = [...orderedData];
 
       // Source and destination list
-      const sourceList = newOrderedData.find(list => list.id === source.droppableId);
-      const destList = newOrderedData.find(list => list.id === destination.droppableId);
+      const sourceList = newOrderedData.find(
+        (list) => list.id === source.droppableId
+      );
+      const destList = newOrderedData.find(
+        (list) => list.id === destination.droppableId
+      );
 
       if (!sourceList || !destList) {
         return;
@@ -83,7 +93,7 @@ const ListContainer = ({ boardId, orgId, data }: IProps) => {
         const reorderedCards = reorder(
           sourceList.card,
           source.index,
-          destination.index,
+          destination.index
         );
 
         reorderedCards.forEach((card, idx) => {
@@ -93,10 +103,13 @@ const ListContainer = ({ boardId, orgId, data }: IProps) => {
         sourceList.card = reorderedCards;
 
         setOrderedData(newOrderedData);
-        // executeUpdateCardOrder({
-        //   boardId: boardId,
-        //   items: reorderedCards,
-        // });
+        UpdateCardOrder({ items: reorderedCards, boardId, orgId })
+          .then(() => {
+            toast.success("Card Position Updated");
+          })
+          .catch(() => {
+            toast.error("Failed to update");
+          });
         // User moves the card to another list
       } else {
         // Remove card from the source list
@@ -118,14 +131,20 @@ const ListContainer = ({ boardId, orgId, data }: IProps) => {
         });
 
         setOrderedData(newOrderedData);
-        // executeUpdateCardOrder({
-        //   boardId: boardId,
-        //   items: destList.cards,
-        // });
+        UpdateCardOrder({
+          boardId,
+          orgId,
+          items: destList.card,
+        })
+          .then(() => {
+            toast.success("Card Position Updated");
+          })
+          .catch(() => {
+            toast.error("Failed to update");
+          });
       }
     }
-  }
-
+  };
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <Droppable droppableId="lists" type="list" direction="horizontal">

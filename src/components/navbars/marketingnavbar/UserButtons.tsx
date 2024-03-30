@@ -2,7 +2,7 @@ import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
 
 import Link from "next/link";
 import { Spinner } from "../../Spinner";
-import NavMobLinks from "./NavMobLinks";
+// import NavMobLinks from "./NavMobLinks";
 import { Button } from "../../ui/button";
 
 const UserButtons = () => {
